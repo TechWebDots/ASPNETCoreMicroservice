@@ -1,4 +1,7 @@
 using DemoMicroservice;
+using DemoMicroservice.Infrastructure;
+using DemoMicroservice.Repository;
+using Microsoft.EntityFrameworkCore;
 using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,7 +16,9 @@ builder.Services.AddSwaggerGen();
 var apiSettings = new AppSettings();
 ConfigurationBinder.Bind(builder.Configuration.GetSection("AppSettings"), apiSettings);
 builder.Services.AddSingleton<IAppSettings>(apiSettings);
-builder.Services.AddMvc(config=> config.Filters.Add(typeof(SecurityHeadersAttribute)));
+builder.Services.AddTransient<IProductRepository, ProductRepository>();
+//builder.Services.AddMvc(config=> config.Filters.Add(typeof(SecurityHeadersAttribute)));
+builder.Services.AddDbContext<ProductContext>(config => config.UseSqlServer(builder.Configuration.GetConnectionString("ProductDB")));
 
 var app = builder.Build();
 
